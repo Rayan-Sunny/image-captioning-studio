@@ -1,0 +1,15 @@
+.DS_Store
+*/.DS_Store
+node_modules/
+frontend/build/
+frontend/node_modules/
+venv/
+.venv/
+backend/venv/
+__pycache__/
+backend/__pycache__/
+*.pt
+*.pth
+*.pyc
+backend/temp_*
+backend/archive/
