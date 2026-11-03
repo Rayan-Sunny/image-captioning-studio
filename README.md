@@ -1,116 +1,104 @@
-# 🖼️ Multimodal Image Captioning Studio
+# Multimodal Image Captioning Studio
 
-[![FastAPI](https://img.shields.io/badge/Backend-FastAPI-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
-[![React](https://img.shields.io/badge/Frontend-React_18-61DAFB?logo=react&logoColor=black)](https://react.dev/)
-[![HuggingFace](https://img.shields.io/badge/Model-Salesforce_BLIP-FFD21E?logo=huggingface&logoColor=black)](https://huggingface.co/Salesforce/blip-image-captioning-base)
-[![Docker](https://img.shields.io/badge/Container-Docker-2496ED?logo=docker&logoColor=white)](https://www.docker.com/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-
-An end-to-end multimodal deep learning web application that automatically translates visual content into rich, context-aware natural language captions. 
-
-Built using **Salesforce's BLIP** (Bootstrapping Language-Image Pre-training) architecture, the system combines a **Vision Transformer (ViT-B/16)** image encoder with a **BERT-based autoregressive text decoder** fused through cross-attention mechanisms.
+A full-stack, vision-language web application that generates natural language descriptions from images using Salesforce's BLIP (Bootstrapping Language-Image Pre-training) architecture.
 
 ---
 
-## 📌 Project Overview & Modes
+## Overview
 
-The studio supports two distinct generation modes:
+The studio translates visual content into natural language through two primary modes:
 
-| Generation Mode | Description | Example Input | Generated Output |
+| Mode | Description | Example Input | Generated Output |
 | :--- | :--- | :--- | :--- |
-| **Unconditional Captioning** | The model generates an open-ended, free-form description of the primary visual scene without any textual bias. | *[Image of a dog on a bench]* | *"a dog sitting on top of a wooden bench"* |
-| **Conditional (Guided) Captioning** | A user-provided prompt prefix guides the decoder's beam search to focus on specific stylistic or contextual details. | Prompt: `"a scene of"` + *[Cloudy sunset image]* | *"a scene of a cloudy sunset with telephone poles at dusk"* |
-| **Close-Up / Detail Framing** | Focuses the cross-attention layers on foreground textures and fine-grained visual features. | Prompt: `"a close-up shot of"` + *[Coffee cup]* | *"a close-up shot of a steaming cup of coffee next to a book"* |
+| **Unconditional Captioning** | The model freely describes the primary scene without any guidance or bias. | Image of a dog sitting outside | *"a dog sitting on top of a wooden bench"* |
+| **Conditional (Guided) Captioning** | A user-provided text prefix steers the language model to focus on specific context or framing. | Prefix: `"a scene of"` + Landscape image | *"a scene of a cloudy sunset with telephone poles at dusk"* |
+| **Foreground / Texture Framing** | Conditions the cross-attention layers toward fine details and close-up features. | Prefix: `"a close-up shot of"` + Object image | *"a close-up shot of a cup of coffee next to an open book"* |
 
 ---
 
-## 🏗️ System Architecture
+## Architecture
 
 ```
-┌────────────────────────────────────────────────────────┐
-│                   Client Browser                       │
-│  React 18 Studio · Web Speech TTS · Telemetry Metrics │
-└──────────────────────────┬─────────────────────────────┘
-                           │  Multipart / Form-Data (Image + Prefix)
-                           ▼
-┌────────────────────────────────────────────────────────┐
-│                FastAPI Inference Server                │
-│  Dockerized · Port 7860 · CORS · Async File Handling   │
-└──────────────────────────┬─────────────────────────────┘
-                           │
-             ┌─────────────┴─────────────┐
-             ▼                           ▼
-┌─────────────────────────┐ ┌─────────────────────────────┐
-│  ViT-B/16 Image Encoder │ │ BERT Autoregressive Decoder │
-│  · Resizes to 384×384   │ │ · Multimodal Cross-Attention│
-│  · 16×16 Visual Patches │ │ · Beam Search (k = 5)       │
-│  · Continuous Embeddings│ │ · Natural Language Tokens   │
-└────────────┬────────────┘ └─────────────▲───────────────┘
-             │                            │
-             └────── Cross-Attention ─────┘
-                           │
-                           ▼
-              Decoded JSON Payload & Audio
+[User Browser]
+       │
+       ▼ (Image File + Optional Prefix Prompt)
+[React Frontend Client]
+       │
+       ▼ (HTTPS Multipart POST /caption)
+[FastAPI Backend Service]
+       │
+       ├── Vision Transformer (ViT-B/16 Encoder)
+       ├── Multimodal Cross-Attention Fusion Bridge
+       └── BERT-based Text Decoder (Autoregressive Beam Search)
+       │
+       ▼ (JSON Response: Caption, Model Metadata, Mode)
+[React Studio UI Display]
 ```
 
 ---
 
-## ✨ Key Features
+## Tech Stack
 
-* **🎨 Modern Studio UI:** Sleek glassmorphic dark interface with drag-and-drop uploads, instant previews, and sample image carousels.
-* **⚡ 1-Click Sample Gallery:** Pre-curated visual samples (*Wildlife, Cityscapes, Still Life, Nature*) for instant testing without uploading files.
-* **🗣️ Native Web Speech (TTS):** Browser-native speech synthesis to read captions aloud for accessibility.
-* **⏱️ Latency & Telemetry Tracker:** Real-time inference timer measuring token generation latency in milliseconds.
-* **📋 Export & Share:** One-click clipboard copy and full inference JSON report downloads.
-* **🐳 Fully Containerized:** 100% reproducible Docker setup optimized with multi-stage layer caching.
+* **Frontend:** React 18, CSS Custom Properties (Dark Studio Theme), Web Speech API.
+* **Backend:** FastAPI, Uvicorn, Python.
+* **Deep Learning & NLP:** PyTorch, Hugging Face Transformers, Salesforce BLIP (`blip-image-captioning-base`).
+* **Containerization & Deployment:** Docker, Hugging Face Spaces (CPU Tier, 16GB RAM), Vercel.
 
 ---
 
-## 📂 Repository Structure
+## Key Features
 
-```tree
+* **Studio Interface:** Clean dark workspace with drag-and-drop image input, real-time image preview, and responsive controls.
+* **Pre-loaded Test Gallery:** Built-in photographic sample images for immediate testing without requiring local uploads.
+* **Speech Synthesis (TTS):** Browser-native audio narration for accessibility.
+* **Inference Telemetry:** Live measurement of model inference latency in milliseconds.
+* **Export Options:** One-click clipboard copy and structured JSON report downloads.
+* **Containerized Deployment:** Dockerfile configured with layer caching for reproducible cloud deployment.
+
+---
+
+## Project Structure
+
+```
 image-captioning-studio/
 ├── backend/
-│   ├── app.py              # FastAPI application & REST endpoints
-│   ├── model.py            # Salesforce BLIP PyTorch inference engine
-│   ├── requirements.txt    # Python dependencies (Torch, Transformers, FastAPI)
-│   ├── Dockerfile          # Container specification for cloud deployment
+│   ├── app.py              # FastAPI application and REST endpoints
+│   ├── model.py            # BLIP PyTorch model initialization and inference
+│   ├── requirements.txt    # Python dependencies
+│   ├── Dockerfile          # Container configuration for deployment
 │   └── .dockerignore       # Docker build exclusion rules
 ├── frontend/
 │   ├── public/
-│   │   └── index.html      # HTML entrypoint & metadata
+│   │   └── index.html      # HTML entrypoint
 │   ├── src/
-│   │   ├── App.css         # Custom dark studio theme & design system
+│   │   ├── App.css         # Dark theme styling and design tokens
 │   │   ├── App.js          # Root component
-│   │   ├── BLIPAnalyzer.jsx# Studio workspace UI, state & telemetry
+│   │   ├── BLIPAnalyzer.jsx# Studio workspace UI, state, and API handling
 │   │   └── index.js        # React DOM render entry
-│   └── package.json        # Frontend configuration & dependencies
-├── .gitignore              # Git ignore rules (venv, node_modules)
+│   └── package.json        # Frontend dependencies and scripts
+├── .gitignore              # Files excluded from version control
 └── README.md               # Project documentation
 ```
 
 ---
 
-## 🔬 Theoretical Background (BLIP)
+## How the Model Works
 
-### 1. Vision Transformer Encoder (ViT-B/16)
-Rather than standard convolutional feature maps, the model splits the input image $\mathbf{x} \in \mathbb{R}^{H \times W \times C}$ into non-overlapping patches $\mathbf{x}_p \in \mathbb{R}^{N \times (P^2 \cdot C)}$, where $P = 16$. These patches are linearly projected into embedding vectors, prepended with a learnable `[CLS]` token, and passed through 12 multi-head self-attention layers to produce contextual visual representations.
+### 1. Image Encoding (ViT-B/16)
+The input image is resized and split into a grid of 16x16 pixel patches. Each patch is flattened and transformed into a vector embedding. A Vision Transformer then processes these visual tokens through multiple layers of self-attention to build a rich representation of spatial relationships across the image.
 
-### 2. Multimodal Cross-Attention
-The BERT-initialized text decoder inserts cross-attention layers between each self-attention and feed-forward block:
-$$\text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right)V$$
-Where:
-* **Queries ($Q$):** Generated from the textual tokens (conditioned prefix or previous step tokens).
-* **Keys ($K$) and Values ($V$):** Derived from the visual patch embeddings output by the ViT encoder.
+### 2. Cross-Attention Fusion
+The text decoder uses cross-attention layers to bridge language and vision. While generating words, the decoder continuously queries the visual patch embeddings from the encoder, allowing the model to ground every generated word in specific regions of the image.
 
-### 3. Autoregressive Beam Search
-During inference, the decoder searches for the most probable token sequence using **Beam Search ($k=5$)**, maintaining the top 5 highest-probability candidate sequences at each decoding step with length penalty normalization to avoid sequence length bias.
+### 3. Autoregressive Beam Search Decoding
+The text decoder generates captions word by word. Instead of greedily picking only the single most likely next word, it uses **Beam Search** (keeping track of the 5 most promising sentence candidates simultaneously) and applies length normalization to produce balanced, accurate descriptions.
 
 ---
 
-## 🚀 Running Locally
+## Local Development
 
 ### 1. Backend Setup
+
 ```bash
 cd backend
 
@@ -121,40 +109,62 @@ source venv/bin/activate       # On Windows: venv\Scripts\activate
 # Install dependencies
 pip install -r requirements.txt
 
-# Start FastAPI server (runs on http://localhost:8000)
+# Start FastAPI server
 python app.py
 ```
-> Interactive API Swagger Documentation is automatically served at: `http://localhost:8000/docs`
+> Interactive API Swagger documentation is available at `http://localhost:8000/docs`.
 
 ### 2. Frontend Setup
+
 ```bash
 cd frontend
 
-# Install node packages
+# Install dependencies
 npm install
 
-# Start React development server (runs on http://localhost:3000)
+# Start React app
 npm start
 ```
+> The application runs locally at `http://localhost:3000`.
 
 ---
 
-## 🌐 Production Cloud Deployment
+## Production Deployment
 
-* **Backend Inference API:** Containerized using Docker and deployed on **Hugging Face Spaces** (Free CPU Tier with 16 GB RAM).
-* **Frontend Application:** Deployed globally on the **Vercel Edge Network** with continuous delivery linked to GitHub.
+### 1. Backend Deployment (Hugging Face Spaces)
+
+1. Create a free account at [Hugging Face](https://huggingface.co/).
+2. Click **New Space**, select **Docker** as the Space SDK, and choose the **Blank** template.
+3. Select the default **CPU basic (2 vCPU, 16 GB RAM)** hardware tier (100% free).
+4. Upload the files from the `backend/` directory (`app.py`, `model.py`, `requirements.txt`, `Dockerfile`, `.dockerignore`).
+5. Hugging Face will automatically read the Dockerfile, build the image, and start the FastAPI service on port `7860`.
+6. Once the status shows **Running**, your live API endpoint will be:
+   `https://<your-username>-<space-name>.hf.space`
+   *(Interactive Swagger API docs are accessible at `/docs`).*
+
+### 2. Frontend Deployment (Vercel)
+
+1. Log in to [Vercel](https://vercel.com/) with your GitHub account.
+2. Click **Add New...** → **Project**, and import this repository.
+3. In project settings:
+   * **Framework Preset:** Create React App
+   * **Root Directory:** `frontend`
+4. Under **Environment Variables**, add:
+   * **Key:** `REACT_APP_API_URL`
+   * **Value:** `https://<your-username>-<space-name>.hf.space` *(your Hugging Face Spaces URL from Step 1, without a trailing slash)*
+5. Click **Deploy**. Vercel will build and serve the client on a global CDN with free SSL.
 
 ---
 
-## 👥 Credits & Acknowledgments
+## Credits & Acknowledgments
 
-* **Academic Origin:** This project originated as an academic project for our university **Artificial Neural Networks & Computer Vision (ANN/CV)** coursework.
-* **Early Collaboration:** Special thanks to course teammates who collaborated on the early version and initial experiments of this project.
-* **Foundation Research:** Salesforce Research for developing and open-sourcing the **BLIP** architecture:
-  > *Li, J., Li, D., Xiong, C., & Hoi, S. (2022). BLIP: Bootstrapping Language-Image Pre-training for Unified Vision-Language Understanding and Generation. ICML 2022.*
-* **Hugging Face:** For the pre-trained model weights (`Salesforce/blip-image-captioning-base`) in the Transformers library.
+* **Academic Origin:** Developed as part of our university **Artificial Neural Networks & Computer Vision (ANN/CV)** coursework.
+* **Early Collaboration:** Special thanks to course teammates who contributed to the initial exploration and early versions of this project.
+* **Foundation Research:** Salesforce Research for developing and open-sourcing the BLIP architecture (*Li et al., ICML 2022*).
+* **Hugging Face:** For hosting and maintaining the pre-trained weights in the Transformers library.
 
 ---
 
-## 📄 License
+## License
+
 This project is open-source and licensed under the [MIT License](LICENSE).
