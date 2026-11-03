@@ -42,7 +42,7 @@ The studio translates visual content into natural language through two primary m
 * **Frontend:** React 18, CSS Custom Properties (Dark Studio Theme), Web Speech API.
 * **Backend:** FastAPI, Uvicorn, Python.
 * **Deep Learning & NLP:** PyTorch, Hugging Face Transformers, Salesforce BLIP (`blip-image-captioning-base`).
-* **Containerization & Deployment:** Docker, Hugging Face Spaces (CPU Tier, 16GB RAM), Vercel.
+* **Containerization & Deployment:** Docker, Hugging Face Spaces (Gradio / Python SDK, Free CPU Tier with 16GB RAM), Vercel.
 
 ---
 
@@ -134,10 +134,10 @@ npm start
 ### 1. Backend Deployment (Hugging Face Spaces)
 
 1. Create a free account at [Hugging Face](https://huggingface.co/).
-2. Click **New Space**, select **Docker** as the Space SDK, and choose the **Blank** template.
+2. Click **New Space**, select **Gradio** as the Space SDK, and choose the **Blank** template.
 3. Select the default **CPU basic (2 vCPU, 16 GB RAM)** hardware tier (100% free).
-4. Upload the files from the `backend/` directory (`app.py`, `model.py`, `requirements.txt`, `Dockerfile`, `.dockerignore`).
-5. Hugging Face will automatically read the Dockerfile, build the image, and start the FastAPI service on port `7860`.
+4. Upload the files from the `backend/` directory (`app.py`, `model.py`, `requirements.txt`).
+5. Hugging Face will automatically install dependencies, build the space, and start the FastAPI service on port `7860`.
 6. Once the status shows **Running**, your live API endpoint will be:
    `https://<your-username>-<space-name>.hf.space`
    *(Interactive Swagger API docs are accessible at `/docs`).*
