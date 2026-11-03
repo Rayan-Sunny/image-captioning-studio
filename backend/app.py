@@ -1,6 +1,7 @@
 """
-app.py — BLIP Image Captioning Backend (FastAPI + Gradio)
-Compatible with Hugging Face Spaces (Gradio SDK) and standalone FastAPI/Uvicorn.
+app.py — FastAPI backend for BLIP Image Captioning
+Run: python app.py
+Docs: http://localhost:8000/docs
 """
 
 from fastapi import FastAPI, File, UploadFile, Form
@@ -9,13 +10,12 @@ from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from typing import Optional
 import shutil, os, uvicorn
-import gradio as gr
 
 from model import caption_image
 
 app = FastAPI(
     title="BLIP Image Captioning API",
-    description="Salesforce BLIP — ViT image encoder + BERT-based text decoder, automatic image captioning"
+    description="Salesforce BLIP — ViT image encoder + BERT-based text decoder"
 )
 
 app.add_middleware(
@@ -42,7 +42,7 @@ def health():
 
 
 @app.post("/caption", response_model=CaptionResponse)
-async def caption_endpoint(
+def caption_endpoint(
     image:  UploadFile = File(...),
     prompt: Optional[str] = Form(default="")
 ):
@@ -65,30 +65,8 @@ async def caption_endpoint(
             os.remove(temp_path)
 
 
-# Gradio Web Interface (for direct testing on Hugging Face)
-def gradio_predict(img_path, prompt_text):
-    if not img_path:
-        return "Please upload an image."
-    res = caption_image(img_path, prompt_text or "")
-    return res["caption"]
-
-demo = gr.Interface(
-    fn=gradio_predict,
-    inputs=[
-        gr.Image(type="filepath", label="Input Image"),
-        gr.Textbox(label="Prompt Prefix (Optional)", placeholder="e.g. a photo of")
-    ],
-    outputs=gr.Textbox(label="Generated Caption"),
-    title="BLIP Image Captioning API",
-    description="Multimodal Vision-Language Studio powered by Salesforce BLIP (ViT-B/16 + BERT Text Decoder)."
-)
-
-# Mount Gradio UI on top of FastAPI
-app = gr.mount_gradio_app(app, demo, path="/")
-
-
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 7860))
+    port = int(os.environ.get("PORT", 8000))
     print(f"Starting BLIP Captioning API on port {port}...")
     print(f"Docs: http://localhost:{port}/docs")
     uvicorn.run(app, host="0.0.0.0", port=port)

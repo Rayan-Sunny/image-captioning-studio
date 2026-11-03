@@ -24,7 +24,7 @@ The studio translates visual content into natural language through two primary m
        ▼ (Image File + Optional Prefix Prompt)
 [React Frontend Client]
        │
-       ▼ (HTTPS Multipart POST /caption)
+       ▼ (HTTP Multipart POST /caption)
 [FastAPI Backend Service]
        │
        ├── Vision Transformer (ViT-B/16 Encoder)
@@ -40,9 +40,8 @@ The studio translates visual content into natural language through two primary m
 ## Tech Stack
 
 * **Frontend:** React 18, CSS Custom Properties (Dark Studio Theme), Web Speech API.
-* **Backend:** FastAPI, Uvicorn, Python.
+* **Backend:** FastAPI, Uvicorn, Python 3.10+.
 * **Deep Learning & NLP:** PyTorch, Hugging Face Transformers, Salesforce BLIP (`blip-image-captioning-base`).
-* **Containerization & Deployment:** Docker, Hugging Face Spaces (Gradio / Python SDK, Free CPU Tier with 16GB RAM), Vercel.
 
 ---
 
@@ -53,7 +52,6 @@ The studio translates visual content into natural language through two primary m
 * **Speech Synthesis (TTS):** Browser-native audio narration for accessibility.
 * **Inference Telemetry:** Live measurement of model inference latency in milliseconds.
 * **Export Options:** One-click clipboard copy and structured JSON report downloads.
-* **Containerized Deployment:** Dockerfile configured with layer caching for reproducible cloud deployment.
 
 ---
 
@@ -64,9 +62,7 @@ image-captioning-studio/
 ├── backend/
 │   ├── app.py              # FastAPI application and REST endpoints
 │   ├── model.py            # BLIP PyTorch model initialization and inference
-│   ├── requirements.txt    # Python dependencies
-│   ├── Dockerfile          # Container configuration for deployment
-│   └── .dockerignore       # Docker build exclusion rules
+│   └── requirements.txt    # Python dependencies
 ├── frontend/
 │   ├── public/
 │   │   └── index.html      # HTML entrypoint
@@ -109,7 +105,7 @@ source venv/bin/activate       # On Windows: venv\Scripts\activate
 # Install dependencies
 pip install -r requirements.txt
 
-# Start FastAPI server
+# Start FastAPI server (runs on http://localhost:8000)
 python app.py
 ```
 > Interactive API Swagger documentation is available at `http://localhost:8000/docs`.
@@ -122,37 +118,9 @@ cd frontend
 # Install dependencies
 npm install
 
-# Start React app
+# Start React app (runs on http://localhost:3000)
 npm start
 ```
-> The application runs locally at `http://localhost:3000`.
-
----
-
-## Production Deployment
-
-### 1. Backend Deployment (Hugging Face Spaces)
-
-1. Create a free account at [Hugging Face](https://huggingface.co/).
-2. Click **New Space**, select **Gradio** as the Space SDK, and choose the **Blank** template.
-3. Select the default **CPU basic (2 vCPU, 16 GB RAM)** hardware tier (100% free).
-4. Upload the files from the `backend/` directory (`app.py`, `model.py`, `requirements.txt`).
-5. Hugging Face will automatically install dependencies, build the space, and start the FastAPI service on port `7860`.
-6. Once the status shows **Running**, your live API endpoint will be:
-   `https://<your-username>-<space-name>.hf.space`
-   *(Interactive Swagger API docs are accessible at `/docs`).*
-
-### 2. Frontend Deployment (Vercel)
-
-1. Log in to [Vercel](https://vercel.com/) with your GitHub account.
-2. Click **Add New...** → **Project**, and import this repository.
-3. In project settings:
-   * **Framework Preset:** Create React App
-   * **Root Directory:** `frontend`
-4. Under **Environment Variables**, add:
-   * **Key:** `REACT_APP_API_URL`
-   * **Value:** `https://<your-username>-<space-name>.hf.space` *(your Hugging Face Spaces URL from Step 1, without a trailing slash)*
-5. Click **Deploy**. Vercel will build and serve the client on a global CDN with free SSL.
 
 ---
 
