@@ -93,7 +93,9 @@ export default function BLIPAnalyzer() {
   const fileInputRef = useRef();
 
   const handleFileSelect = (file) => {
-    if (!file || !file.type.startsWith("image/")) return;
+    if (!file) return;
+    const isImage = file.type.startsWith("image/") || file.name.toLowerCase().endsWith(".heic") || file.name.toLowerCase().endsWith(".heif");
+    if (!isImage) return;
     setImage({ file, url: URL.createObjectURL(file), name: file.name });
     setResult(null);
     setError(null);
@@ -511,7 +513,7 @@ export default function BLIPAnalyzer() {
                       Drop visual asset here, or browse
                     </div>
                     <div style={{ fontSize: 12, color: "var(--text-subtle)" }}>
-                      PNG, JPG, JPEG, WEBP · Auto-scaled to 384px ViT patches
+                      PNG, JPG, JPEG, WEBP, HEIC (iPhone) · Auto-scaled to 384px ViT patches
                     </div>
                   </div>
                 )}
@@ -520,7 +522,7 @@ export default function BLIPAnalyzer() {
               <input
                 ref={fileInputRef}
                 type="file"
-                accept="image/*"
+                accept="image/*,.heic,.heif,.HEIC,.HEIF"
                 style={{ display: "none" }}
                 onChange={(e) => {
                   if (e.target.files && e.target.files[0]) {

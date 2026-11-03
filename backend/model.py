@@ -13,6 +13,11 @@ How it works:
 import torch
 from transformers import BlipProcessor, BlipForConditionalGeneration
 from PIL import Image
+try:
+    from pillow_heif import register_heif_opener
+    register_heif_opener()
+except ImportError:
+    pass
 
 print("Loading BLIP (ViT + Text Decoder)...")
 
